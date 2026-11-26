@@ -1,6 +1,6 @@
 # Long-running agent tasks: keeping a coding agent on track for hours
 
-A coding agent that runs for hours fails in two characteristic ways: it drifts off the original goal, or it loops without ever deciding it is done. Both are state problems. planning-with-files addresses them with plan files on disk, mechanical re-injection, and, since v3, two opt-in modes built for unattended runs. Overview: [README](../README.md).
+A coding agent that runs for hours fails in two characteristic ways: it drifts off the original goal, or it loops without ever deciding it is done. Both are state problems. **planning-with-memory** addresses them with plan files on disk, mechanical re-injection, optional v3 unattended modes, and `.memory/` so finished boards leave durable project knowledge behind. Overview: [README](../README.md). Project memory: [project-memory.md](project-memory.md).
 
 ## Why agents drift on long runs
 

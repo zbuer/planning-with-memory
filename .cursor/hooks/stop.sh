@@ -48,11 +48,32 @@ if [ "$TOTAL" -eq 0 ]; then
 fi
 
 if [ "$COMPLETE" -eq "$TOTAL" ] && [ "$TOTAL" -gt 0 ]; then
-    # All phases complete: stay silent. Cursor submits a followup_message as
-    # the next user message, so a finished plan must not produce one.
+    # planning-with-memory: auto-complete once (INDEX/LOG + findings capture)
+    ROOT="${CURSOR_PROJECT_DIR:-$(pwd)}"
+    SKILL=""
+    for c in \
+      "$ROOT/.cursor/skills/planning-with-memory" \
+      "$HOME/.cursor/skills/planning-with-memory" \
+      "${HOOK_DIR}/../skills/planning-with-memory"
+    do
+      if [ -f "$c/scripts/complete-task-plan.sh" ]; then
+        SKILL="$c"
+        break
+      fi
+    done
+    MARKER="${CURSOR_PLAN_DIR}/.pm_completed"
+    if [ -n "$SKILL" ] && [ ! -f "$MARKER" ]; then
+      sh "$SKILL/scripts/complete-task-plan.sh" >/tmp/pm-complete-$$.log 2>&1 || true
+      TAIL="$(tail -n 6 /tmp/pm-complete-$$.log 2>/dev/null || true)"
+      rm -f /tmp/pm-complete-$$.log
+      # One followup to ask human to skim auto-written memory (then stop)
+      printf '%s\n' "{\"followup_message\": \"[planning-with-memory] All phases complete. Ran complete-task-plan.sh (TASK_INDEX/TASK_LOG + findings→KNOWLEDGE). Briefly verify, then stop unless the user wants more. ${TAIL}\"}"
+      exit 0
+    fi
+    # Already completed/logged — stay silent
     exit 0
 else
     # Phases incomplete — auto-continue via followup_message
-    echo "{\"followup_message\": \"[planning-with-files] Task incomplete ($COMPLETE/$TOTAL phases done). Update progress.md, then read task_plan.md and continue working on the remaining phases.\"}"
+    echo "{\"followup_message\": \"[planning-with-memory] Task incomplete ($COMPLETE/$TOTAL phases done). Update progress.md, then read task_plan.md and continue the remaining phases. If the user asked to stop, respect that.\"}"
     exit 0
 fi

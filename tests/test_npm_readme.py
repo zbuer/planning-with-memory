@@ -1,4 +1,4 @@
-"""The npm README must be the root README pinned to the packaged release."""
+"""The npm README must be README-PWF.md pinned to the packaged release."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ def builder():
 def test_committed_npm_readme_matches_package_version(builder) -> None:
     version = json.loads((PACKAGE_ROOT / "package.json").read_text(encoding="utf-8"))["version"]
     current = (PACKAGE_ROOT / "README.md").read_text(encoding="utf-8")
-    expected = builder.render((REPO_ROOT / "README.md").read_text(encoding="utf-8"), version)
+    expected = builder.render((REPO_ROOT / "README-PWF.md").read_text(encoding="utf-8"), version)
     problems = builder.stale_report(current, expected, version)
     assert not problems, (
         ".pi/skills/planning-with-files/README.md is stale for package version "
@@ -109,7 +109,7 @@ def test_stale_report_names_old_pins_and_changed_prose(builder) -> None:
     edited_source = SOURCE_FIXTURE.replace("Install with", "Install the plugin with")
     problems = builder.stale_report(released, builder.render(edited_source, "3.28.1"), "3.28.1")
     assert any("not pinned to v3.28.1" in p and "docs/hermes.md (v3.24.3)" in p for p in problems)
-    assert any("differ from README.md beyond link pins" in p for p in problems)
+    assert any("differ from README-PWF.md beyond link pins" in p for p in problems)
     assert builder.stale_report(released, released, "3.24.3") == []
 
 

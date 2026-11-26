@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build the npm package README from the repository README.
+"""Build the npm package README from README-PWF.md (planning-with-files core).
 
 npm cannot resolve repository-relative links, so the bundled
-`.pi/skills/planning-with-files/README.md` is the root `README.md` with every
+`.pi/skills/planning-with-files/README.md` is `README-PWF.md` with every
 relative link pinned to the release named in that package's `package.json`:
 
     src="media/x.svg"  -> https://raw.githubusercontent.com/OthmanAdi/planning-with-files/vX.Y.Z/media/x.svg
@@ -13,7 +13,7 @@ relative link pinned to the release named in that package's `package.json`:
 
 Absolute URLs, in-page anchors and fenced code blocks are copied unchanged, so
 historical release links, benchmark citations and third-party URLs keep their
-targets. The output depends only on README.md and the package version, and
+targets. The output depends only on README-PWF.md and the package version, and
 running the script twice changes nothing.
 
 Run after `bump-version.py` and before `npm pack` or `npm publish`:
@@ -31,7 +31,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SOURCE = REPO_ROOT / "README.md"
+SOURCE = REPO_ROOT / "README-PWF.md"
 PACKAGE_DIR = REPO_ROOT / ".pi" / "skills" / "planning-with-files"
 TARGET = PACKAGE_DIR / "README.md"
 PACKAGE_JSON = PACKAGE_DIR / "package.json"
@@ -115,7 +115,7 @@ def stale_report(current: str, expected: str, version: str) -> list[str]:
     if changed:
         first = changed[0].split()[1].lstrip("-").split(",")[0]
         problems.append(
-            f"{len(changed)} sections differ from README.md beyond link pins (first at README.md line {first})"
+            f"{len(changed)} sections differ from README-PWF.md beyond link pins (first at README-PWF.md line {first})"
         )
     if not problems:
         problems.append("contents differ from the generated README")

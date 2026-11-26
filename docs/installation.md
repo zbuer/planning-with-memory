@@ -1,15 +1,17 @@
 # Installation Guide
 
-Complete installation instructions for planning-with-files.
+Install **planning-with-memory** so agents get the 3-file task plan plus `.memory/` project memory. Product skill path: `skills/planning-with-memory/`. What memory is for: [project-memory.md](project-memory.md).
 
-## Quick Install (Recommended)
+Upstream [planning-with-files](https://github.com/OthmanAdi/planning-with-files) install recipes below still describe shared host mechanics; when cloning or adding a marketplace, point at **this** repository (`zbuer/planning-with-memory`) and the **planning-with-memory** skill name unless a section explicitly says otherwise.
+
+## Quick Install (Claude Code plugin)
 
 ```bash
-/plugin marketplace add OthmanAdi/planning-with-files
-/plugin install planning-with-files@planning-with-files
+/plugin marketplace add zbuer/planning-with-memory
+/plugin install planning-with-memory@planning-with-memory
 ```
 
-The plugin is now installed. When a project has no active plan, its startup hook is intentionally silent.
+If your host still expects the older plugin id from a local checkout, install from this repo’s `.claude-plugin/` and use skill `planning-with-memory`. When a project has no active plan, its startup hook is intentionally silent (it may still inject a compact memory digest when `.memory/` exists).
 
 ---
 

@@ -15,9 +15,9 @@ Steps:
 An explicit `${PLAN_ID}` or `${PWF_PLAN_ROOT}` that does not resolve exits with an error. It never falls back to another plan.
 
 Implementation:
-- On Linux/macOS/Git Bash: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/attest-plan.sh`
-- On Windows PowerShell plugin installs: `& "$env:CLAUDE_PLUGIN_ROOT\scripts\attest-plan.ps1"`
-- On Windows PowerShell standalone installs: `& "$env:USERPROFILE\.claude\skills\planning-with-files\scripts\attest-plan.ps1"`
+- On Linux/macOS/Git Bash: `sh ${CLAUDE_PLUGIN_ROOT}/skills/planning-with-memory/scripts/attest-plan.sh`
+- On Windows PowerShell plugin installs: `& "$env:CLAUDE_PLUGIN_ROOT\skills\planning-with-memory\scripts\attest-plan.ps1"`
+- On Windows PowerShell standalone installs: `& "$env:USERPROFILE\.claude\skills\planning-with-memory\scripts\attest-plan.ps1"`
 
 Flags:
 - `--show` — print the currently stored hash and where it lives.

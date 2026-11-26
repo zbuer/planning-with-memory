@@ -1,6 +1,6 @@
 # Cursor IDE Setup
 
-How to use planning-with-files with Cursor IDE — now with full hook support.
+How to use **planning-with-memory** with Cursor IDE (hooks + `/task-plan` / `/charter`). Project memory: [project-memory.md](project-memory.md).
 
 ---
 

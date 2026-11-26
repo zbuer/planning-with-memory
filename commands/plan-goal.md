@@ -8,7 +8,7 @@ Bridge the active plan to Claude Code's `/goal` primitive.
 
 Steps:
 
-1. Validate `${PWF_PLAN_ROOT}` as an absolute existing project root when set; refuse an invalid root pin. Otherwise use cwd as the project root. Resolve the selected plan with `sh ${CLAUDE_PLUGIN_ROOT}/scripts/resolve-plan-dir.sh` (PowerShell: `& "$env:CLAUDE_PLUGIN_ROOT\scripts\resolve-plan-dir.ps1"`). A printed directory is the selected plan. On empty output:
+1. Validate `${PWF_PLAN_ROOT}` as an absolute existing project root when set; refuse an invalid root pin. Otherwise use cwd as the project root. Resolve the selected plan with `sh ${CLAUDE_PLUGIN_ROOT}/skills/planning-with-memory/scripts/resolve-plan-dir.sh` (PowerShell: `& "$env:CLAUDE_PLUGIN_ROOT\skills\planning-with-memory\scripts\resolve-plan-dir.ps1"`). A printed directory is the selected plan. On empty output:
    - With non-empty `${PLAN_ID}`, the plan selector was rejected. Refuse and ask the user to correct the pin; never fall back to another plan.
    - If `resolve-plan-dir.sh --check-ambiguity` (PowerShell: `-CheckAmbiguity`) prints `PWF_PLAN_AMBIGUOUS_V1`, multiple plans exist without a selector. Refuse and ask the user to set `PLAN_ID=<slug>`.
    - Otherwise use legacy `task_plan.md` from the validated project root (`PWF_PLAN_ROOT` when set), if it exists. A valid root pin alone does not reject a legacy root plan.

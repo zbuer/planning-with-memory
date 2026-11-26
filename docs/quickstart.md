@@ -1,6 +1,8 @@
 # Quick Start Guide
 
-Follow these 5 steps to use the planning-with-files pattern.
+Follow these steps to use **planning-with-memory**: a live task plan on disk, plus durable project memory under `.memory/`.
+
+Why two layers: [project memory](project-memory.md). The 3-file board alone is covered in the [README](../README.md#the-3-file-pattern).
 
 ---
 
@@ -8,11 +10,20 @@ Follow these 5 steps to use the planning-with-files pattern.
 
 **When:** Before starting any work on a complex task
 
-**Action:** Invoke the skill (e.g., `/plan` or `/planning-with-files:start`) and describe what you want to accomplish. The AI will create all three planning files in your project directory:
+**Action:** Invoke the skill and describe what you want to accomplish.
+
+| Host | Typical entry |
+|------|----------------|
+| Claude Code (plugin) | `/plan`, `/pwf`, or `/start` |
+| Cursor | `/task-plan` (not Cursor Plan mode) |
+| Any Agent Skills host | Invoke **planning-with-memory** |
+
+The agent creates (or resumes) the three planning files and ensures `.memory/` exists (knowledge + task index/log; charter only if you run `/charter`):
 
 - `task_plan.md` — Phases and progress tracking
 - `findings.md` — Research and discoveries
 - `progress.md` — Session log and test results
+- `.memory/` — Project memory across boards
 
 If you invoke the skill without a task description, the AI will ask you what you'd like to plan.
 
@@ -162,9 +173,14 @@ remaining risks, and rollback notes in the topic handoff.
 
 **If not complete:** The Stop hook (or script) will prevent stopping. Continue working until all phases are done.
 
-**If complete:** Deliver your work! All three planning files document your process.
+**If complete:** Deliver your work, then promote lasting knowledge into project memory:
 
-The planning files are working memory, not a tracked deliverable: they are gitignored and are not archived automatically. See [After Completion: What Happens to the Plan Files](workflow.md#after-completion-what-happens-to-the-plan-files) for the intended lifecycle and how to keep a completed plan if you want one.
+```bash
+# from the skill scripts directory, or via Cursor stop when all phases complete
+sh scripts/complete-task-plan.sh
+```
+
+That updates `.memory/TASK_INDEX.md` and `TASK_LOG.md`, and can capture findings into `KNOWLEDGE.md`. The three planning files remain working memory for the board (often gitignored); `.memory/` is what you usually keep in git. See [project-memory.md](project-memory.md) and [After Completion](workflow.md#after-completion-what-happens-to-the-plan-files).
 
 ---
 
@@ -200,6 +216,15 @@ The planning files are working memory, not a tracked deliverable: they are gitig
 │  • Encountering errors (add to Error Log with timestamp)│
 │  • Resuming after a break (update 5-Question Check)     │
 └─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│  .memory/ (project memory)                               │
+│  Update when:                                            │
+│  • Starting a project → optional /charter                │
+│  • All phases complete → complete-task-plan.sh           │
+│    (INDEX + LOG; capture findings → KNOWLEDGE)           │
+│  • Learning a lasting fact mid-work → append KNOWLEDGE   │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -213,6 +238,7 @@ The planning files are working memory, not a tracked deliverable: they are gitig
 | Skip logging errors because you fixed them quickly | Log ALL errors, even ones you resolved immediately |
 | Repeat the same failed action | If something fails, log it and try a different approach |
 | Only update one file | The three files work together - update them as a set |
+| Start a new board with no memory of the last one | Run `complete-task-plan.sh` when phases finish; keep `.memory/` in git |
 
 ---
 

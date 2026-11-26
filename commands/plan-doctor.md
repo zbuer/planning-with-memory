@@ -1,14 +1,14 @@
 ---
-description: "Self-check for the planning-with-files mechanisms that fail silently: plan resolution, hook injection, canonicalizer path shape, attestation state, install surfaces, and per-fire hook latency. Run it whenever hooks seem quiet or after installing on a new machine. Available since v3.6.0."
+description: "Self-check for the planning-with-memory mechanisms that fail silently: plan resolution, hook injection, canonicalizer path shape, attestation state, install surfaces, and per-fire hook latency. Run it whenever hooks seem quiet or after installing on a new machine. Available since v3.6.0."
 disable-model-invocation: true
 allowed-tools: "Bash"
 ---
 
-Run the planning-with-files self-check against the current project directory.
+Run the planning-with-memory self-check against the current project directory.
 
 Steps:
 1. Run the doctor script from the project root:
-   - Linux/macOS/Git Bash: `sh ${CLAUDE_PLUGIN_ROOT}/scripts/plan-doctor.sh`
+   - Linux/macOS/Git Bash: `sh ${CLAUDE_PLUGIN_ROOT}/skills/planning-with-memory/scripts/plan-doctor.sh`
    - Windows without Git Bash on PATH: locate Git Bash via `git.exe` (its `usr\bin\sh.exe` sibling) and run the same script with it.
 2. Report the PASS/WARN/FAIL lines to the user verbatim — they are designed to be read as-is.
 3. If any line reports FAIL, explain the matching remediation:

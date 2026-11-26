@@ -301,26 +301,82 @@ emit_post_tool_nudge() {
         "$_encoded"
 }
 
-emit_session_start() {
-    [ -f "$INJECT_PLAN" ] && [ -f "$RESOLVE_PLAN_DIR" ] || exit 0
-    _plan_dir=$(active_plan_dir) || exit 0
-    [ -n "$_plan_dir" ] && [ -f "${_plan_dir}/task_plan.md" ] || exit 0
+# planning-with-memory: compact .memory digest for SessionStart (optional).
+memory_digest_text() {
+    _md=""
+    for _md_cand in \
+        "${PLUGIN_ROOT}/skills/planning-with-memory/scripts/memory-digest.sh" \
+        "${PLUGIN_ROOT}/skills/i18n/planning-with-memory-zh/scripts/memory-digest.sh"
+    do
+        if [ -f "$_md_cand" ]; then
+            _md=$(sh "$_md_cand" "$PWD" 2>/dev/null) || _md=""
+            break
+        fi
+    done
+    printf '%s' "$_md"
+}
 
+# When all phases complete, run complete-task-plan once (INDEX/LOG + capture).
+maybe_complete_task_plan() {
+    _ct=""
+    for _ct_cand in \
+        "${PLUGIN_ROOT}/skills/planning-with-memory/scripts/complete-task-plan.sh" \
+        "${PLUGIN_ROOT}/skills/i18n/planning-with-memory-zh/scripts/complete-task-plan.sh"
+    do
+        if [ -f "$_ct_cand" ]; then
+            _ct="$_ct_cand"
+            break
+        fi
+    done
+    [ -n "$_ct" ] || return 0
+    [ -f "$CHECK_COMPLETE" ] || CHECK_COMPLETE="${SCRIPTS_DIR}/check-complete.sh"
+    [ -f "$CHECK_COMPLETE" ] || return 0
+    _plan_dir=$(active_plan_dir 2>/dev/null) || return 0
+    [ -n "$_plan_dir" ] && [ -f "${_plan_dir}/task_plan.md" ] || return 0
+    [ -f "${_plan_dir}/.pm_completed" ] && return 0
+    _cc_out=$(sh "$CHECK_COMPLETE" 2>/dev/null) || return 0
+    case "$_cc_out" in
+        *"ALL PHASES COMPLETE"*|*"all phases complete"*|*"All phases complete"*)
+            sh "$_ct" >/dev/null 2>&1 || true
+            ;;
+    esac
+}
+
+emit_session_start() {
+    _mem=$(memory_digest_text)
     _catchup=""
+    _context=""
     # Prefer `python` on Windows because the WindowsApps `python3` alias can be
     # discoverable yet non-functional. Unix hosts fall through to python3.
     _python=$(command -v python 2>/dev/null || command -v python3 2>/dev/null || true)
-    if [ -n "$_python" ] && [ -f "$SESSION_CATCHUP" ]; then
-        _catchup=$("$_python" "$SESSION_CATCHUP" --no-history "$PWD" 2>/dev/null) || _catchup=""
+    if [ -f "$INJECT_PLAN" ] && [ -f "$RESOLVE_PLAN_DIR" ]; then
+        _plan_dir=$(active_plan_dir) || _plan_dir=""
+        if [ -n "$_plan_dir" ] && [ -f "${_plan_dir}/task_plan.md" ]; then
+            if [ -n "$_python" ] && [ -f "$SESSION_CATCHUP" ]; then
+                _catchup=$("$_python" "$SESSION_CATCHUP" --no-history "$PWD" 2>/dev/null) || _catchup=""
+            fi
+            _context=$(sh "$INJECT_PLAN" --context=userprompt 2>/dev/null) || _context=""
+        fi
     fi
-    _context=$(sh "$INJECT_PLAN" --context=userprompt 2>/dev/null) || exit 0
-    if [ -n "$_catchup" ] && [ -n "$_context" ]; then
-        _output="${_catchup}
+    _output=""
+    if [ -n "$_mem" ]; then
+        _output="$_mem"
+    fi
+    if [ -n "$_catchup" ]; then
+        if [ -n "$_output" ]; then
+            _output="${_output}
+${_catchup}"
+        else
+            _output="$_catchup"
+        fi
+    fi
+    if [ -n "$_context" ]; then
+        if [ -n "$_output" ]; then
+            _output="${_output}
 ${_context}"
-    elif [ -n "$_catchup" ]; then
-        _output="$_catchup"
-    else
-        _output="$_context"
+        else
+            _output="$_context"
+        fi
     fi
     [ -n "$_output" ] || exit 0
     _encoded=$(printf '%s' "$_output" | json_string)
@@ -365,6 +421,7 @@ case "$EVENT" in
     stop)
         # Do not read stdin here. gate-stop must receive Claude's original Stop
         # payload so stop_hook_active can prevent recursive continuation.
+        maybe_complete_task_plan
         [ -f "$GATE_STOP" ] || exit 0
         _output=$(sh "$GATE_STOP" 2>/dev/null) || exit 0
         [ -n "$_output" ] || exit 0
